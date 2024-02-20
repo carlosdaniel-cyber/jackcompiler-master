@@ -175,4 +175,36 @@ public class CodeGerenerator extends TestSupport {
             assertEquals(expected, actual);
     }
 
+    @Test
+    public void testReturn () {
+        var input = """
+            return;
+            """;
+        
+        var parser = new Parser(input.getBytes(StandardCharsets.UTF_8));
+        parser.parseStatement();
+        String actual = parser.VMOutput();
+        String expected = """
+                push constant 0
+                return       
+                    """;
+            assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testReturnExpr () {
+        var input = """
+            return 10;
+            """;
+        
+        var parser = new Parser(input.getBytes(StandardCharsets.UTF_8));
+        parser.parseStatement();
+        String actual = parser.VMOutput();
+        String expected = """
+                push constant 10
+                return       
+                    """;
+            assertEquals(expected, actual);
+    }
+
 }
