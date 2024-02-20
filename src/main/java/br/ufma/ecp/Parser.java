@@ -110,6 +110,7 @@ public class Parser {
     // term -> number | identifier | stringConstant | keywordConstant
     void parseTerm() {
         printNonTerminal("term");
+        TokenType op;
         switch (peekToken.type) {
             case NUMBER:
                 expectPeek(TokenType.NUMBER);
@@ -155,9 +156,16 @@ public class Parser {
                 expectPeek(RPAREN);
                 break;
             case MINUS:
-            case NOT:
-                expectPeek(MINUS, NOT);
+                expectPeek(MINUS);
+                op = currentToken.type;
                 parseTerm();
+                vmWriter.writeArithmetic(Command.NEG);
+                break;
+            case NOT:
+                expectPeek(NOT);
+                op = currentToken.type;
+                parseTerm();
+                vmWriter.writeArithmetic(Command.NOT);    
                 break;
             default:
                 ;
