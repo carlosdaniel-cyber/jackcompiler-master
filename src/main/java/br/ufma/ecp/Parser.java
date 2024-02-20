@@ -4,6 +4,8 @@ import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
 import static br.ufma.ecp.token.TokenType.*;
 
+import br.ufma.ecp.VMWriter.Segment;
+
 public class Parser {
 
     private static class ParseError extends RuntimeException {}
@@ -109,7 +111,8 @@ public class Parser {
         printNonTerminal("term");
         switch (peekToken.type) {
             case NUMBER:
-                expectPeek(NUMBER);
+            expectPeek(TokenType.NUMBER);
+            vmWriter.writePush(Segment.CONST, Integer.parseInt(currentToken.lexeme));
                 break;
             case STRING:
                 expectPeek(STRING);
