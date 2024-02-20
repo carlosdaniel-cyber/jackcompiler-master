@@ -58,4 +58,26 @@ public class CodeGerenerator extends TestSupport {
             assertEquals(expected, actual);
     }
 
+    @Test
+    public void testLiteralString () {
+        var input = """
+            "OLA"
+            """;
+        
+        var parser = new Parser(input.getBytes(StandardCharsets.UTF_8));
+        parser.parseExpression();
+        String actual = parser.VMOutput();
+        String expected = """
+                push constant 3
+                call String.new 1
+                push constant 79
+                call String.appendChar 2
+                push constant 76
+                call String.appendChar 2
+                push constant 65
+                call String.appendChar 2
+                    """;
+            assertEquals(expected, actual);
+    }
+
 }
