@@ -4,7 +4,7 @@ import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
 import static br.ufma.ecp.token.TokenType.*;
 
-import br.ufma.ecp.SymbolTable.Kind;
+import br.ufma.ecp.SymbolTable.*;
 import br.ufma.ecp.VMWriter.Command;
 import br.ufma.ecp.VMWriter.Segment;
 
@@ -146,17 +146,22 @@ public class Parser {
                 vmWriter.writePush(Segment.POINTER, 0);
                 break;            
             case IDENT:
-                expectPeek(IDENT);
-                if (peekTokenIs(LPAREN) || peekTokenIs(DOT)) {
+                expectPeek(TokenType.IDENT);
+
+                Symbol sym = symbolTable.resolve(currentToken.lexeme);
+                
+                if (peekTokenIs(TokenType.LPAREN) || peekTokenIs(TokenType.DOT)) {
                     parseSubroutineCall();
-                } else { // variavel comum ou array
-                    if (peekTokenIs(LBRACKET)) { // array
-                        expectPeek(LBRACKET);
-                        parseExpression();
-                        expectPeek(RBRACKET);
-                    } 
+                } else { 
+                    if (peekTokenIs(TokenType.LBRACKET)) { 
+                        expectPeek(TokenType.LBRACKET);
+                        parseExpression();                        
+                        expectPeek(TokenType.RBRACKET);                       
+                    } else {
+                        vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
+                    }
                 }
-                break;
+                break;            
             case LPAREN:
                 expectPeek(LPAREN);
                 parseExpression();
@@ -178,6 +183,18 @@ public class Parser {
                 ;
         }
         printNonTerminal("/term");
+    }
+
+    private Segment kind2Segment(Kind kind) {
+        if (kind == Kind.STATIC)
+            return Segment.STATIC;
+        if (kind == Kind.FIELD)
+            return Segment.THIS;
+        if (kind == Kind.VAR)
+            return Segment.LOCAL;
+        if (kind == Kind.ARG)
+            return Segment.ARG;
+        return null;
     }
 
     static public boolean isOperator(String op) {

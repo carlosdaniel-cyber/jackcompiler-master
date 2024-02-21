@@ -290,4 +290,27 @@ public class CodeGerenerator extends TestSupport {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void testSimpleFunctionWithVar () {
+        var input = """
+            class Main {
+
+                 function int funcao () {
+                        var int d;
+                        return d;
+                  }
+                
+                }
+            """;;
+        var parser = new Parser(input.getBytes(StandardCharsets.UTF_8));
+        parser.parse();
+        String actual = parser.VMOutput();
+        String expected = """
+            function Main.funcao 1
+            push local 0
+            return
+            """;
+        assertEquals(expected, actual);
+    }
+
 }

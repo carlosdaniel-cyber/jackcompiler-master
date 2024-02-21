@@ -3,6 +3,8 @@ package br.ufma.ecp;
 import java.util.HashMap;
 import java.util.Map;
 
+import br.ufma.ecp.VMWriter.Segment;
+
 public class SymbolTable {
 
     public enum Kind {
