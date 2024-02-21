@@ -322,7 +322,7 @@ public class Parser {
             expectPeek(LBRACE);
             parseStatements();
             expectPeek(RBRACE);
-            
+
             if (peekTokenIs(ELSE)){
                 vmWriter.writeGoto(labelEnd);
             }
@@ -375,19 +375,34 @@ public class Parser {
                     throw error(peekToken, "Expected a statement");
             }
         }
-    
+
             // 'while' '(' expression ')' '{' statements '}'
-    void parseWhile() {
-        printNonTerminal("whileStatement");
-        expectPeek(WHILE);
-        expectPeek(LPAREN);
-        parseExpression();
-        expectPeek(RPAREN);
-        expectPeek(LBRACE);
-        parseStatements();
-        expectPeek(RBRACE);
-        printNonTerminal("/whileStatement");
-    }
+        void parseWhile() {
+            printNonTerminal("whileStatement");
+
+            var labelTrue = "WHILE_EXP" + whileLabelNum;
+            var labelFalse = "WHILE_END" + whileLabelNum;
+            whileLabelNum++;
+
+            vmWriter.writeLabel(labelTrue);
+
+            expectPeek(WHILE);
+            expectPeek(LPAREN);
+            parseExpression();
+
+            vmWriter.writeArithmetic(Command.NOT);
+            vmWriter.writeIf(labelFalse);
+
+            expectPeek(RPAREN);
+            expectPeek(LBRACE);
+            parseStatements();
+
+            vmWriter.writeGoto(labelTrue); // Go back to labelTrue and check condition
+            vmWriter.writeLabel(labelFalse); // Breaks out of while loop because ~(condition) is true
+
+            expectPeek(RBRACE);
+            printNonTerminal("/whileStatement");
+        }
 
         // ReturnStatement -> 'return' expression? ';'
         void parseReturn() {
