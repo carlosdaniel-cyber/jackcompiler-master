@@ -4,5 +4,5 @@ The Jack Compiler is a part of the Nand2Tetris project, which aims to teach comp
 
 ## Contributors
 
-- [Carlos Daniel Barros Pereira](https://github.com/cardaniel)
+- [Carlos Daniel Barros Pereira](https://github.com/carlosdaniel-cyber)
 - [Jhefferson Brendo da Silveira Silva](https://github.com/Jhefferson007)
