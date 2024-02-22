@@ -445,4 +445,32 @@ public class CodeGerenerator extends TestSupport {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void doStatement () {
+        var input = """
+            class Main {
+                function void main () {
+                    var int x;
+                    let x = 10;
+                    do Output.printInt(x);
+                    return;
+                }
+            }
+            """;;
+        var parser = new Parser(input.getBytes(StandardCharsets.UTF_8));
+        parser.parse();
+        String actual = parser.VMOutput();
+        String expected = """
+            function Main.main 1
+            push constant 10
+            pop local 0
+            push local 0
+            call Output.printInt 1
+            pop temp 0
+            push constant 0
+            return
+                """;
+        assertEquals(expected, actual);
+    }
+
 }
