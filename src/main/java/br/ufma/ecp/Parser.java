@@ -296,36 +296,65 @@ public class Parser {
 
     // subroutineCall -> subroutineName '(' expressionList ')' | (className|varName)
     // '.' subroutineName '(' expressionList ')
-    void parseSubroutineCall() {
-        if (peekTokenIs(LPAREN)) {
+    void parseSubroutineCall() {     
+        
+
+        var nArgs = 0;
+
+        var ident = currentToken.lexeme;
+        var symbol = symbolTable.resolve(ident); // classe ou objeto
+        var functionName = ident + ".";
+
+        if (peekTokenIs(LPAREN)) { // método da propria classe
             expectPeek(LPAREN);
-            parseExpressionList();
+            vmWriter.writePush(Segment.POINTER, 0);
+            nArgs = parseExpressionList() + 1;
             expectPeek(RPAREN);
+            functionName = className + "." + ident;
         } else {
+            // pode ser um metodo de um outro objeto ou uma função
             expectPeek(DOT);
-            expectPeek(IDENT);
+            expectPeek(IDENT); // nome da função
+
+            if (symbol != null) { // é um metodo
+                functionName = symbol.type() + "." + currentToken.lexeme;
+                vmWriter.writePush(kind2Segment(symbol.kind()), symbol.index());
+                nArgs = 1; // do proprio objeto
+            } else {
+                functionName += currentToken.lexeme; // é uma função
+            }
+
             expectPeek(LPAREN);
-            parseExpressionList();
+            nArgs += parseExpressionList();
+
             expectPeek(RPAREN);
         }
+
+        vmWriter.writeCall(functionName, nArgs);
     }
 
-    void parseExpressionList() {
+    int parseExpressionList() {
         printNonTerminal("expressionList");
+
+        var nArgs = 0;
 
         if (!peekTokenIs(RPAREN)) // verifica se tem pelo menos uma expressao
         {
             parseExpression();
+            nArgs = 1;
         }
 
         // procurando as demais
         while (peekTokenIs(COMMA)) {
             expectPeek(COMMA);
             parseExpression();
+            nArgs++;
         }
 
         printNonTerminal("/expressionList");
+        return nArgs;
     }
+
     // 'do' subroutineCall ';'
     public void parseDo() {
         printNonTerminal("doStatement");
